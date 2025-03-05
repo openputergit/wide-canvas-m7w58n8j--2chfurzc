@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VehicleCare Plus - All-in-One Vehicle Services Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .slide-enter-active, .slide-leave-active {
+            transition: all 0.3s ease;
+        }
+        .slide-enter-from, .slide-leave-to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="bg-blue-600 text-white p-4 fixed w-full z-50">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-2xl font-bold">VehicleCare Plus</h1>
+                <div class="flex space-x-4">
+                    <button @click="activeView = 'home'" :class="{'text-yellow-300': activeView === 'home'}" class="hover:text-yellow-200">
+                        <i class="bi bi-house-door"></i> Home
+                    </button>
+                    <button @click="activeView = 'services'" :class="{'text-yellow-300': activeView === 'services'}" class="hover:text-yellow-200">
+                        <i class="bi bi-tools"></i> Services
+                    </button>
+                    <button @click="activeView = 'profile'" :class="{'text-yellow-300': activeView === 'profile'}" class="hover:text-yellow-200">
+                        <i class="bi bi-person-circle"></i> Profile
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="container mx-auto pt-20 px-4">
+            <!-- Home View -->
+            <div v-if="activeView === 'home'" class="space-y-6">
+                <!-- Hero Section -->
+                <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                    <h2 class="text-3xl font-bold mb-4">Welcome to VehicleCare Plus</h2>
+                    <p class="text-gray-600">Your all-in-one platform for vehicle services and community engagement</p>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-6 rounded-lg shadow-lg text-center cursor-pointer hover:bg-blue-50 transition"
+                         @click="activeView = 'services'; activeService = 'rental'">
+                        <i class="bi bi-car-front text-4xl text-blue-600"></i>
+                        <h3 class="text-xl font-semibold mt-2">Vehicle Rental</h3>
+                        <p class="text-gray-600">Rent 2-wheelers and 4-wheelers</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-lg text-center cursor-pointer hover:bg-blue-50 transition"
+                         @click="activeView = 'services'; activeService = 'mechanic'">
+                        <i class="bi bi-wrench text-4xl text-blue-600"></i>
+                        <h3 class="text-xl font-semibold mt-2">Find Mechanic</h3>
+                        <p class="text-gray-600">24/7 emergency services</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-lg text-center cursor-pointer hover:bg-blue-50 transition"
+                         @click="activeView = 'services'; activeService = 'taxi'">
+                        <i class="bi bi-taxi-front text-4xl text-blue-600"></i>
+                        <h3 class="text-xl font-semibold mt-2">Book Taxi</h3>
+                        <p class="text-gray-600">Instant cab booking</p>
+                    </div>
+                </div>
+
+                <!-- Community Section -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-2xl font-bold mb-4">Community Initiatives</h3>
+                    <div class="space-y-4">
+                        <div v-for="initiative in communityInitiatives" :key="initiative.id" 
+                             class="border p-4 rounded-lg hover:bg-gray-50">
+                            <h4 class="font-semibold">{{ initiative.title }}</h4>
+                            <p class="text-gray-600">{{ initiative.description }}</p>
+                            <div class="flex items-center space-x-4 mt-2">
+                                <button class="text-blue-600 hover:text-blue-800">
+                                    <i class="bi bi-hand-thumbs-up"></i> Support
+                                </button>
+                                <span class="text-gray-500">{{ initiative.supporters }} supporters</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Services View -->
+            <div v-if="activeView === 'services'" class="space-y-6">
+                <!-- Service Categories -->
+                <div class="flex space-x-4 overflow-x-auto pb-2">
+                    <button v-for="service in services" 
+                            :key="service.id"
+                            @click="activeService = service.id"
+                            :class="{'bg-blue-600 text-white': activeService === service.id}"
+                            class="px-4 py-2 rounded-full border hover:bg-blue-50 whitespace-nowrap">
+                        <i :class="service.icon"></i> {{ service.name }}
+                    </button>
+                </div>
+
+                <!-- Service Content -->
+                <div v-if="activeService === 'rental'" class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-2xl font-bold mb-4">Vehicle Rental</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-4">
+                            <select v-model="rentalForm.vehicleType" class="w-full p-2 border rounded">
+                                <option value="">Select Vehicle Type</option>
+                                <option value="2wheeler">2 Wheeler</option>
+                                <option value="4wheeler">4 Wheeler</option>
+                            </select>
+                            <input type="date" v-model="rentalForm.startDate" class="w-full p-2 border rounded" placeholder="Start Date">
+                            <input type="date" v-model="rentalForm.endDate" class="w-full p-2 border rounded" placeholder="End Date">
+                            <button @click="bookVehicle" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                                Book Now
+                            </button>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded">
+                            <h4 class="font-semibold mb-2">Available Vehicles</h4>
+                            <div v-if="loading" class="flex justify-center">
+                                <div class="loader"></div>
+                            </div>
+                            <div v-else class="space-y-2">
+                                <div v-for="vehicle in availableVehicles" 
+                                     :key="vehicle.id"
+                                     class="bg-white p-2 rounded flex justify-between items-center">
+                                    <span>{{ vehicle.name }}</span>
+                                    <span class="text-green-600">₹{{ vehicle.price }}/day</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="activeService === 'mechanic'" class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-2xl font-bold mb-4">Find Mechanic</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-4">
+                            <select v-model="mechanicForm.serviceType" class="w-full p-2 border rounded">
+                                <option value="">Select Service Type</option>
+                                <option value="emergency">Emergency Repair</option>
+                                <option value="maintenance">Regular Maintenance</option>
+                            </select>
+                            <textarea v-model="mechanicForm.description" class="w-full p-2 border rounded" 
+                                    placeholder="Describe your issue"></textarea>
+                            <button @click="findMechanic" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                                Find Mechanic
+                            </button>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded">
+                            <h4 class="font-semibold mb-2">Nearby Mechanics</h4>
+                            <div v-if="loading" class="flex justify-center">
+                                <div class="loader"></div>
+                            </div>
+                            <div v-else class="space-y-2">
+                                <div v-for="mechanic in nearbyMechanics" 
+                                     :key="mechanic.id"
+                                     class="bg-white p-2 rounded flex justify-between items-center">
+                                    <div>
+                                        <div class="font-semibold">{{ mechanic.name }}</div>
+                                        <div class="text-sm text-gray-600">{{ mechanic.distance }} km away</div>
+                                    </div>
+                                    <button class="text-blue-600 hover:text-blue-800">
+                                        Contact
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="activeService === 'taxi'" class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-2xl font-bold mb-4">Book Taxi</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-4">
+                            <input type="text" v-model="taxiForm.pickup" class="w-full p-2 border rounded" 
+                                   placeholder="Pickup Location">
+                            <input type="text" v-model="taxiForm.dropoff" class="w-full p-2 border rounded" 
+                                   placeholder="Drop-off Location">
+                            <button @click="bookTaxi" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                                Book Taxi
+                            </button>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded">
+                            <h4 class="font-semibold mb-2">Available Rides</h4>
+                            <div v-if="loading" class="flex justify-center">
+                                <div class="loader"></div>
+                            </div>
+                            <div v-else class="space-y-2">
+                                <div v-for="ride in availableRides" 
+                                     :key="ride.id"
+                                     class="bg-white p-2 rounded flex justify-between items-center">
+                                    <div>
+                                        <div class="font-semibold">{{ ride.type }}</div>
+                                        <div class="text-sm text-gray-600">{{ ride.eta }} mins away</div>
+                                    </div>
+                                    <div class="text-green-600">₹{{ ride.price }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile View -->
+            <div v-if="activeView === 'profile'" class="space-y-6">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center">
+                            <i class="bi bi-person text-4xl text-gray-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold">{{ user.name }}</h3>
+                            <p class="text-gray-600">{{ user.email }}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold mb-2">Recent Activities</h4>
+                            <div class="space-y-2">
+                                <div v-for="activity in recentActivities" 
+                                     :key="activity.id"
+                                     class="border p-2 rounded">
+                                    <div class="font-semibold">{{ activity.type }}</div>
+                                    <div class="text-sm text-gray-600">{{ activity.date }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-2">Settings</h4>
+                            <div class="space-y-2">
+                                <button class="w-full text-left p-2 hover:bg-gray-100 rounded">
+                                    <i class="bi bi-bell"></i> Notifications
+                                </button>
+                                <button class="w-full text-left p-2 hover:bg-gray-100 rounded">
+                                    <i class="bi bi-shield-lock"></i> Privacy
+                                </button>
+                                <button class="w-full text-left p-2 hover:bg-gray-100 rounded">
+                                    <i class="bi bi-credit-card"></i> Payment Methods
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const { createApp } = Vue
+
+        createApp({
+            data() {
+                return {
+                    activeView: 'home',
+                    activeService: null,
+                    loading: false,
+                    user: {
+                        name: 'John Doe',
+                        email: 'john@example.com'
+                    },
+                    rentalForm: {
+                        vehicleType: '',
+                        startDate: '',
+                        endDate: ''
+                    },
+                    mechanicForm: {
+                        serviceType: '',
+                        description: ''
+                    },
+                    taxiForm: {
+                        pickup: '',
+                        dropoff: ''
+                    },
+                    services: [
+                        { id: 'rental', name: 'Vehicle Rental', icon: 'bi bi-car-front' },
+                        { id: 'mechanic', name: 'Find Mechanic', icon: 'bi bi-wrench' },
+                        { id: 'taxi', name: 'Book Taxi', icon: 'bi bi-taxi-front' }
+                    ],
+                    communityInitiatives: [
+                        {
+                            id: 1,
+                            title: 'Green Transportation Initiative',
+                            description: 'Support eco-friendly transportation in our community',
+                            supporters: 156
+                        },
+                        {
+                            id: 2,
+                            title: 'Safe Roads Campaign',
+                            description: 'Join us in making our roads safer for everyone',
+                            supporters: 89
+                        }
+                    ],
+                    availableVehicles: [
+                        { id: 1, name: 'Honda Activa', price: 400 },
+                        { id: 2, name: 'Royal Enfield', price: 800 },
+                        { id: 3, name: 'Hyundai i20', price: 1500 }
+                    ],
+                    nearbyMechanics: [
+                        { id: 1, name: 'Quick Fix Auto', distance: 1.2 },
+                        { id: 2, name: 'Mobile Mechanic', distance: 2.5 },
+                        { id: 3, name: '24/7 Car Care', distance: 3.1 }
+                    ],
+                    availableRides: [
+                        { id: 1, type: 'Economy', eta: 5, price: 150 },
+                        { id: 2, type: 'Premium', eta: 8, price: 250 },
+                        { id: 3, type: 'Luxury', eta: 12, price: 450 }
+                    ],
+                    recentActivities: [
+                        { id: 1, type: 'Vehicle Rental', date: '2023-11-15' },
+                        { id: 2, type: 'Mechanic Service', date: '2023-11-10' },
+                        { id: 3, type: 'Taxi Ride', date: '2023-11-05' }
+                    ]
+                }
+            },
+            methods: {
+                async bookVehicle() {
+                    this.loading = true;
+                    try {
+                        // Simulate API call
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        alert('Vehicle booked successfully!');
+                    } catch (error) {
+                        alert('Failed to book vehicle');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                async findMechanic() {
+                    this.loading = true;
+                    try {
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        alert('Mechanic request sent!');
+                    } catch (error) {
+                        alert('Failed to find mechanic');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                async bookTaxi() {
+                    this.loading = true;
+                    try {
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        alert('Taxi booked successfully!');
+                    } catch (error) {
+                        alert('Failed to book taxi');
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            }
+        }).mount('#app')
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
